@@ -3,10 +3,10 @@ package com.example.userhandler.service.impl;
 import com.example.userhandler.exception.UserBadRequestException;
 import com.example.userhandler.exception.UserNotFoundException;
 import com.example.userhandler.model.User;
+import com.example.userhandler.resource.Users;
 import com.example.userhandler.service.UserService;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserServiceImpl implements UserService {
-    private final List<User> usersDB = new ArrayList<>();
     @Value("${minAgeAllowed}")
     private int minAgeAllowed;
 
@@ -26,13 +25,13 @@ public class UserServiceImpl implements UserService {
                     + " is not allowed. You must be at least "
                     + minAgeAllowed + ".");
         }
-        usersDB.add(newUser);
+        Users.storage.add(newUser);
         return newUser;
     }
 
     @Override
     public List<User> findAll() {
-        return usersDB;
+        return Users.storage;
     }
 
     @Override
@@ -63,7 +62,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(String email) {
-        boolean userDeleted = usersDB.removeIf(u -> u.getEmail().equals(email));
+        boolean userDeleted = Users.storage.removeIf(u -> u.getEmail().equals(email));
         if (!userDeleted) {
             throw new UserNotFoundException("There is no user with email: " + email);
         }
@@ -75,7 +74,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("[from] date must be before [to] date");
         }
 
-        return usersDB.stream()
+        return Users.storage.stream()
                 .filter(user -> !user.getBirthDate().isBefore(from) && !user.getBirthDate().isAfter(to))
                 .collect(Collectors.toList());
     }
@@ -90,7 +89,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private User getExistingUser(String email) {
-        return usersDB.stream()
+        return Users.storage.stream()
                 .filter(u -> u.getEmail().equals(email))
                 .findFirst()
                 .orElseThrow(() -> new UserNotFoundException("There is no user with email: " + email));
