@@ -33,7 +33,7 @@ public class UserController {
 
     @PutMapping("/{email}")
     public User updateUser(@PathVariable String email, @RequestBody User user) {
-        return userService.updateUpdate(email, user);
+        return userService.updateUser(email, user);
     }
 
     @GetMapping("/search")
