@@ -9,7 +9,7 @@ public interface UserService {
 
     List<User> findAll();
 
-    User updateUpdate(String email, User partialUpdate);
+    User updateUser(String email, User partialUpdate);
 
     void deleteUser(String email);
 

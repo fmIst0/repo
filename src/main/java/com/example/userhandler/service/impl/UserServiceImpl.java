@@ -8,20 +8,25 @@ import com.example.userhandler.service.UserService;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.stereotype.Component;
 
 @Component
+@PropertySources({
+        @PropertySource(value = "classpath:application.properties")
+})
 public class UserServiceImpl implements UserService {
     @Value("${minAgeAllowed}")
     private int minAgeAllowed;
 
     @Override
     public User register(User newUser) {
-        int userAge = calculateAge(newUser.getBirthDate());
-        if (!checkIfAgeAllowed(userAge)) {
-            throw new UserBadRequestException("Age: " + userAge
+        if (!checkIfAgeAllowed(newUser.getBirthDate())) {
+            throw new UserBadRequestException("Age: " + calculateAge(newUser.getBirthDate())
                     + " is not allowed. You must be at least "
                     + minAgeAllowed + ".");
         }
@@ -35,8 +40,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUpdate(String email, User user) {
+    public User updateUser(String email, User user) {
         User existingUser = getExistingUser(email);
+
+        if (user.getBirthDate() != null) {
+            int userAge = calculateAge(user.getBirthDate());
+
+            if (!checkIfAgeAllowed(user.getBirthDate())) {
+                throw new UserBadRequestException("Age: " + userAge
+                        + " is not allowed. You must be at least "
+                        + minAgeAllowed + ".");
+            }
+        }
+
 
         if (user.getEmail() != null) {
             existingUser.setEmail(user.getEmail());
@@ -80,8 +96,8 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private boolean checkIfAgeAllowed(int age) {
-        return age >= minAgeAllowed;
+    private boolean checkIfAgeAllowed(LocalDate birthDate) {
+        return calculateAge(birthDate) >= minAgeAllowed && !birthDate.isAfter(LocalDate.now());
     }
 
     private int calculateAge(LocalDate birthDate) {
