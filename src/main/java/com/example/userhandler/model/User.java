@@ -3,6 +3,7 @@ package com.example.userhandler.model;
 import com.example.userhandler.validation.Email;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -10,6 +11,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Getter
 @Setter
+@EqualsAndHashCode
 public class User {
     @Email
     private String email;
